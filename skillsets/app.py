@@ -13,6 +13,24 @@ host=os.getenv("REDIS_HOST")
 port=os.getenv("REDIS_PORT")
 r = redis.Redis(host=host, port=port, db=0)
 
+@app.route('/', methods=['GET'])
+def index():
+    # Get all engineer names and skills from the Redis database
+    engineer_data = {}
+    for key in r.scan_iter():
+        engineer_data[key.decode()] = r.get(key).decode()
+    
+    # Return a welcome message and the list of engineers, or an error message if there are no engineers
+    if len(engineer_data) == 0:
+        return '<h3>Welcome to Skillsets! No engineers with skillsets to display.</h3> <p>Please add your first engineer by running "curl -X POST -H "Content-Type: application/json" -d \'{\"name\": \"Alice\", \"skills\": \"Python, SQL, Flask\"}\' http://HOST:5000/add_engineer".</p>'
+    else:
+        return f'<h2>Welcome to Skillsets!</h2> \n {engineer_data}'
+
+
+@app.route('/healthz')
+def welcome():
+    return "<h2>100% Healthy!</h1>"
+
 @app.route('/add_engineer', methods=['POST'])
 def add_engineer():
     # Get the engineer data from the request body
@@ -83,7 +101,6 @@ def get_all_engineers():
     engineer_data = {}
     for key in r.scan_iter():
         engineer_data[key.decode()] = r.get(key).decode()
-    
     # Return the engineer data as a JSON response
     return jsonify(engineer_data)
 
