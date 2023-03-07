@@ -1,0 +1,35 @@
+version: "3.3"
+networks:
+  devops:
+    driver: bridge
+volumes:
+  redis-data:
+services:
+  skillsets:
+    image:  codesenju/skillsets
+    build: skillsets/
+    container_name: skillsets
+    environment:
+       - REDIS_HOST=redis.api.local
+       - REDIS_PORT=6379
+    restart: unless-stopped
+    networks:
+      - devops
+    ports:
+      - 5000:5000
+  redis.api.local:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --save
+      - "60" 
+      - "1" 
+      - --loglevel debug
+    networks:
+        - devops
+    volumes:
+       - redis-data:/data
+#    ports:
+#      - 6379:6379
