@@ -20,7 +20,9 @@ def index():
     for key in r.scan_iter():
         engineer_data[key.decode()] = r.get(key).decode()
     
-    # Return a welcome message and the list of engineers, or an error message if there are no engineers
+    # Return a welcome message and the list of engineers, or an error message if there are ====
+    # 
+    # =no engineers
     if len(engineer_data) == 0:
         return '<h3>Welcome to Skillsets! No engineers with skillsets to display.</h3> <p>Please add your first engineer by running "curl -X POST -H "Content-Type: application/json" -d \'{\"name\": \"Alice\", \"skills\": \"Python, SQL, Flask\"}\' http://HOST:5000/add_engineer".</p>'
     else:

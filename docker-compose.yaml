@@ -26,7 +26,8 @@ services:
       - --save
       - "60" 
       - "1" 
-      - --loglevel debug
+      - --loglevel
+      - debug
     networks:
         - devops
     volumes:
