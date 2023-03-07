@@ -6,7 +6,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"name": "Alice", "skills":
 ```
 ## Retrieve the skills for an engineer with name "Bob" using a GET request:
 ```bash
-curl http://localhost:5000/get_skills?name=Alice
+curl "http://localhost:5000/get_skills?name=Alice"
 ```
 ## Retrieve the skills for all engineers using a GET request:
 ```bash
@@ -16,7 +16,6 @@ curl http://localhost:5000/get_all_engineers
 ```bash
 curl -X PUT -H "Content-Type: application/json" -d '{"skills": "Python, Flask, Django"}' http://localhost:5000/update_engineer_skillset/Alice
 ```
-
 ## Delete
 ```bash
 curl -X DELETE http://localhost:5000/delete_engineer/Alice

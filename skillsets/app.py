@@ -60,6 +60,23 @@ def get_skills():
     # Return the skills as a JSON response
     return jsonify({'skills': skills.decode()})
 
+@app.route('/get_engineers_by_skill/<skill>', methods=['GET'])
+def get_engineers_by_skill(skill):
+    # Get all engineer names and skills from the Redis database
+    engineer_data = {}
+    for key in r.scan_iter():
+        engineer_data[key.decode()] = r.get(key).decode()
+    
+    # Filter engineer names by skill
+    filtered_names = [name for name, skills in engineer_data.items() if skill in skills]
+    
+    # Return the filtered engineer names as a JSON response, or an error message if there are no matching engineers
+    if len(filtered_names) == 0:
+        return jsonify({'error': f'No engineer found with the skillset {skill}.'})
+    else:
+        return jsonify({'engineers': filtered_names})
+
+
 @app.route('/get_all_engineers', methods=['GET'])
 def get_all_engineers():
     # Get all engineer names and skills from the Redis database
