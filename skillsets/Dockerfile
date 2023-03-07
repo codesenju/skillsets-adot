@@ -2,6 +2,8 @@ FROM python:alpine3.16
 
 WORKDIR /app
 
+ENV REDIS_PORT=6379
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt  && \
     apk update && \
