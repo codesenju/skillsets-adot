@@ -543,7 +543,10 @@ class skillsetsStack(Stack):
         ## AutoScaling for skillsets ##
         scaling_skillsets = skillsets_service.auto_scale_task_count(max_capacity=10)
         scaling_skillsets.scale_on_cpu_utilization("CpuScaling",
-            target_utilization_percent=60
+            target_utilization_percent=80
+        )
+        scaling_skillsets.scale_on_memory_utilization("MemoryScaling",
+            target_utilization_percent=80
         )
 
         ## OUTPUT ###
