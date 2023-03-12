@@ -138,13 +138,13 @@ class skillsetsStack(Stack):
                 port=5000,
                 health_check=appmesh.HealthCheck.http(
                     healthy_threshold=3,
-                    interval=cdk.Duration.seconds(12),
+                    interval=cdk.Duration.seconds(35),
                     path="/healthz",
-                    timeout=cdk.Duration.seconds(10),
+                    timeout=cdk.Duration.seconds(30),
                     unhealthy_threshold=2
                 ),
                 timeout=appmesh.HttpTimeout(
-                    idle=cdk.Duration.seconds(5)
+                    idle=cdk.Duration.seconds(30)
                 )
             )],
             access_log=appmesh.AccessLog.from_file_path("/dev/stdout"),
@@ -330,7 +330,9 @@ class skillsetsStack(Stack):
         ## Volume ##
         redis_volume = ecs.Volume(name="REDIS_DATA",efs_volume_configuration={
                    "file_system_id": efs_file_system.file_system_id
-        })
+        }
+        
+        )
         ## EFS mount point ##
         redis_efs_mount_point = ecs.MountPoint(source_volume=redis_volume.name, 
                                         container_path="/data",
@@ -394,6 +396,7 @@ class skillsetsStack(Stack):
             },
            
        )
+
         
         ## Port Mapping ##
         skillsets_container.add_port_mappings(ecs.PortMapping(container_port=5000,name="skillsets",host_port=5000))
@@ -408,9 +411,11 @@ class skillsetsStack(Stack):
            memory_reservation_mib=512,
            #cpu=256,
            container_name="redis",
-           command=["redis-server","--save","60","1","--loglevel","warning"]
+           command=["redis-server","--save","60","1","--loglevel","debug"]
            
        )
+        # Add mount point
+        redis_container.add_mount_points(redis_efs_mount_point)
         
         ## Port Mapping ##
         redis_container.add_port_mappings(ecs.PortMapping(container_port=6379,name="redis"))
@@ -429,7 +434,8 @@ class skillsetsStack(Stack):
                 "ENVOY_LOG_LEVEL": "debug",
                 "ENABLE_ENVOY_STATS_TAGS": "1",
                 "ENABLE_ENVOY_XRAY_TRACING": "1",
-                "APPMESH_RESOURCE_ARN": skillsets_node.virtual_node_arn
+                "APPMESH_RESOURCE_ARN": skillsets_node.virtual_node_arn,
+                "APPMESH_METRIC_EXTENSION_VERSION": "1"
             },
             essential=True,
             logging=ecs.LogDriver.aws_logs(
@@ -437,8 +443,8 @@ class skillsetsStack(Stack):
                 log_group=logGroup
             ),
             health_check=ecs.HealthCheck(
-                interval=cdk.Duration.seconds(12),
-                timeout=cdk.Duration.seconds(10),
+                interval=cdk.Duration.seconds(35),
+                timeout=cdk.Duration.seconds(30),
                 retries=10,
                 command=["CMD-SHELL","curl -s http://localhost:9901/server_info | grep state | grep -q LIVE"],
             ),
