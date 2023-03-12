@@ -8,9 +8,84 @@ receivers:
       - job_name: "flask-metrics"
         static_configs:
         - targets: [ 0.0.0.0:5000]
+        - job_name: otel-envoy-eg # case 
+          scrape_interval: 5s
+          metrics_path: /stats/prometheus
+          static_configs:
+            - targets: ["localhost:9901"]
+              labels:
+                __ecs_container_metadata_uri: ${ECS_CONTAINER_METADATA_URI}
+          relabel_configs:
+            - source_labels: [__ecs_container_metadata_uri]
+              target_label: ecs_task_id
+              regex: '.*?/([a-z0-9]+)-\d+$'
   awsecscontainermetrics:
     collection_interval: 10s
 processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 20
+    spike_limit_percentage: 15
+  filter/envoy:
+    metrics:
+      include:
+        match_type: strict
+        metric_names:
+          - envoy_cluster_manager_active_clusters
+          - envoy_cluster_manager_warming_clusters
+          - envoy_cluster_membership_healthy
+          - envoy_cluster_membership_total
+          - envoy_cluster_name
+          - envoy_cluster_update_failure
+          - envoy_cluster_update_success
+          - envoy_cluster_upstream_cx_active
+          - envoy_cluster_upstream_cx_connect_fail
+          - envoy_cluster_upstream_cx_connect_ms_bucket
+          - envoy_cluster_upstream_cx_connect_ms
+          - envoy_cluster_upstream_cx_connect_timeout
+          - envoy_cluster_upstream_cx_destroy_local_with_active_rq
+          - envoy_cluster_upstream_cx_destroy_remote_with_active_rq
+          - envoy_cluster_upstream_cx_http
+          - envoy_cluster_upstream_cx_length_ms_bucket
+          - envoy_cluster_upstream_cx_overflow
+          - envoy_cluster_upstream_cx_rx_bytes_total
+          - envoy_cluster_upstream_cx_total
+          - envoy_cluster_upstream_cx_tx_bytes_total
+          - envoy_cluster_upstream_flow_control_backed_up_total
+          - envoy_cluster_upstream_flow_control_drained_total
+          - envoy_cluster_upstream_flow_control_paused_reading_total
+          - envoy_cluster_upstream_flow_control_resumed_reading_total
+          - envoy_cluster_upstream_rq_maintenance_mode
+          - envoy_cluster_upstream_rq_pending_failure_eject
+          - envoy_cluster_upstream_rq_pending_overflow
+          - envoy_cluster_upstream_rq_per_try_timeout
+          - envoy_cluster_upstream_rq_retry
+          - envoy_cluster_upstream_rq_retry_overflow
+          - envoy_cluster_upstream_rq_retry_success
+          - envoy_cluster_upstream_rq_rx_reset
+          - envoy_cluster_upstream_rq_time
+          - envoy_cluster_upstream_rq_time_bucket
+          - envoy_cluster_upstream_rq_timeout
+          - envoy_cluster_upstream_rq_total
+          - envoy_cluster_upstream_rq_xx
+          - envoy_http_conn_manager_prefix
+          - envoy_http_downstream_cx_active
+          - envoy_http_downstream_cx_destroy_remote_active_rq
+          - envoy_http_downstream_cx_http
+          - envoy_http_downstream_cx_total
+          - envoy_http_downstream_rq_active
+          - envoy_http_downstream_rq_time
+          - envoy_http_downstream_rq_time_bucket
+          - envoy_http_downstream_rq_total
+          - envoy_http_downstream_rq_xx
+          - envoy_http_rq_total
+          - envoy_response_code_class
+          - envoy_server_live
+          - envoy_server_memory_allocated
+          - envoy_server_memory_heap_size
+          - envoy_server_parent_connections
+          - envoy_server_uptime
+          - envoy_server_version
   filter:
     metrics:
       include:
@@ -45,14 +120,19 @@ exporters:
             - StorageWriteBytes
         - dimensions: [[ClusterName], [ClusterName, TaskDefinitionFamily, ContainerName]]
           metric_name_selectors: [container.*]
+  # AWS Managed Prometheus Collector configuration
   prometheusremotewrite:
     endpoint: $AWS_PROMETHEUS_ENDPOINT
     auth:
       authenticator: sigv4auth
     resource_to_telemetry_conversion:
       enabled: true
+    remote_write_queue:
+      enabled: true
+      num_consumers: 1
+      queue_size: 5000
   logging:
-    loglevel: info
+    loglevel: debug
 extensions:
   health_check:
   pprof:
@@ -72,3 +152,7 @@ service:
       receivers: [awsecscontainermetrics]
       processors: [filter]
       exporters: [logging, prometheusremotewrite]
+    metrics/envoy:
+      receivers: [prometheus]
+      processors: [memory_limiter, filter/envoy]
+      exporters: [prometheusremotewrite]
