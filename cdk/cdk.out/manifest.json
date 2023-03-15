@@ -1,0 +1,214 @@
+{
+  "version": "22.0.0",
+  "artifacts": {
+    "skillsetsStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "skillsetsStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "skillsetsStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://587878432697/us-east-1",
+      "properties": {
+        "templateFile": "skillsetsStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::587878432697:role/cdk-hnb659fds-deploy-role-587878432697-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::587878432697:role/cdk-hnb659fds-cfn-exec-role-587878432697-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-587878432697-us-east-1/a685685bc1232b1fd7d2337278e4a62f80721a017f204fabc56a3446e366f1f8.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "skillsetsStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::587878432697:role/cdk-hnb659fds-lookup-role-587878432697-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "skillsetsStack.assets"
+      ],
+      "metadata": {
+        "/skillsetsStack/skillsets_sg/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetssg924C52BD"
+          }
+        ],
+        "/skillsetsStack/skillsets_sg/from skillsetsStackimportedelbSG5487E6BF:5000": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetssgfromskillsetsStackimportedelbSG5487E6BF50006D4ADC60"
+          }
+        ],
+        "/skillsetsStack/skillsets_sg/to skillsetsStackredisefsSGID1BDCB913:2049": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetssgtoskillsetsStackredisefsSGID1BDCB913204977F4344F"
+          }
+        ],
+        "/skillsetsStack/redis_efs_SGID/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisefsSGIDBA5F5E82"
+          }
+        ],
+        "/skillsetsStack/importedelbSG/from 0.0.0.0_0:80": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "importedelbSGfrom000008011DCB00D"
+          }
+        ],
+        "/skillsetsStack/ImportedTaskExecutionRole/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ImportedTaskExecutionRolePolicy23E279F9"
+          }
+        ],
+        "/skillsetsStack/ImportedEcsExecTaskRole/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ImportedEcsExecTaskRolePolicy6CAEEF74"
+          }
+        ],
+        "/skillsetsStack/redis_EFSFileSystem/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisEFSFileSystemD702FC13"
+          }
+        ],
+        "/skillsetsStack/redis_EFSFileSystem/EfsMountTarget1": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisEFSFileSystemEfsMountTarget17BB429D5"
+          }
+        ],
+        "/skillsetsStack/redis_EFSFileSystem/EfsMountTarget2": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisEFSFileSystemEfsMountTarget2C70454BD"
+          }
+        ],
+        "/skillsetsStack/redis_EFSFileSystem/EfsMountTarget3": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisEFSFileSystemEfsMountTarget38E95AEAE"
+          }
+        ],
+        "/skillsetsStack/redis/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisBFFF3E2F"
+          }
+        ],
+        "/skillsetsStack/redisVirtualService/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "redisVirtualService67101F30"
+          }
+        ],
+        "/skillsetsStack/node/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "nodeE52CB09E"
+          }
+        ],
+        "/skillsetsStack/skillsetsVirtualService/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsVirtualService07F40FB3"
+          }
+        ],
+        "/skillsetsStack/skillsetsTaskDef/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsTaskDef78421FED"
+          }
+        ],
+        "/skillsetsStack/skillsetsLogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsLogGroup9C1E032F"
+          }
+        ],
+        "/skillsetsStack/skillsets/Service": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsService5665704E"
+          }
+        ],
+        "/skillsetsStack/skillsets/TaskCount/Target/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsTaskCountTarget0713437C"
+          }
+        ],
+        "/skillsetsStack/skillsets/TaskCount/Target/CpuScaling/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsTaskCountTargetCpuScaling6B862B9B"
+          }
+        ],
+        "/skillsetsStack/skillsets/TaskCount/Target/MemoryScaling/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsTaskCountTargetMemoryScaling824089DE"
+          }
+        ],
+        "/skillsetsStack/skillsetsLoadBalancer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsLoadBalancer17BA0E06"
+          }
+        ],
+        "/skillsetsStack/skillsetsLoadBalancer/skillsetsListener/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsLoadBalancerskillsetsListenerE6A06DED"
+          }
+        ],
+        "/skillsetsStack/skillsetsLoadBalancer/skillsetsListener/skillsetsTargetsGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "skillsetsLoadBalancerskillsetsListenerskillsetsTargetsGroup3CA8A825"
+          }
+        ],
+        "/skillsetsStack/SkillsetsElbEndpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SkillsetsElbEndpoint"
+          }
+        ],
+        "/skillsetsStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/skillsetsStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/skillsetsStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "skillsetsStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

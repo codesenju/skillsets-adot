@@ -496,7 +496,7 @@ class skillsetsStack(Stack):
         ## Otel Container - START ##
         skillsets_otel_container = skillsets_task_definition.add_container(
              "skillsetsOtelContainer",
-             image=ecs.ContainerImage.from_registry("codesenju/aws-otel-collector:amd"),
+             image=ecs.ContainerImage.from_registry("codesenju/aws-otel-collector:case"),
              logging=ecs.LogDriver.aws_logs(
                  stream_prefix='/otel-container',
                  log_group=logGroup
@@ -514,16 +514,16 @@ class skillsetsStack(Stack):
         ## Otel Container - END ##
         
         ## Service ##
-        skillsets_service = ecs.Ec2Service(self, "skillsets",
+        #skillsets_service = ecs.Ec2Service(self, "skillsets",
+        skillsets_service = ecs.FargateService(self, "skillsets",
             cluster=cluster,
             task_definition=skillsets_task_definition,
             security_groups=[skillsets_sg], # - RuntimeError: vpcSubnets, securityGroup(s) and assignPublicIp can only be used in AwsVpc networking mode
             enable_execute_command=True,
             capacity_provider_strategies=[ecs.CapacityProviderStrategy(
-               # capacity_provider="spot-api-capasity-provider", 
-                capacity_provider="amd-spot-api-capasity-provider", 
+               # capacity_provider="amd-spot-api-capasity-provider", 
+                capacity_provider="FARGATE", 
                 weight=1,
-                
             )],
             service_name="skillsets",
             health_check_grace_period=cdk.Duration.seconds(5000)
@@ -548,6 +548,7 @@ class skillsetsStack(Stack):
         scaling_skillsets.scale_on_memory_utilization("MemoryScaling",
             target_utilization_percent=80
         )
+
 
         ## OUTPUT ###
         # Output the ARN of the ECS service to use in other Stacks.
