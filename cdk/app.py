@@ -4,6 +4,7 @@
 # - https://docs.aws.amazon.com/cdk/api/v2/python/index.html
 
 from aws_cdk import (
+    CfnParameter,
     Stack,
     aws_ecs as ecs,
     aws_ec2 as ec2,
@@ -16,7 +17,10 @@ from aws_cdk import (
     aws_servicediscovery as servicediscovery,
     aws_elasticloadbalancingv2 as elbv2,
     aws_ecs_patterns as ecs_patterns,
-    aws_efs as efs
+    aws_efs as efs,
+    aws_route53 as route53,
+    aws_route53_targets as route54_targets,
+    aws_certificatemanager as acm
 )
 import os
 from constructs import Construct
@@ -28,8 +32,9 @@ class skillsetsStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        # Get  environment variable
+        skillsets_zone_name = "lmasu.co.za"
+        skillsets_fqdn = "ecs-skillsets." + skillsets_zone_name
+        # Get environment variable
         account = os.getenv("AWS_ACCOUNT_ID")
         ecs_cluster_name = os.getenv("ECS_CLUSTER_NAME")
         region = os.getenv("AWS_REGION")
@@ -533,13 +538,37 @@ class skillsetsStack(Stack):
         ###################################
         ## LOADBALANCING & ASUTO SCALING ##
         ###################################
-    
-        skillsets_load_balancer = elbv2.ApplicationLoadBalancer(self, "skillsetsLoadBalancer",vpc=vpc, internet_facing=True,security_group=elb_SG)
-        skillsets_listener = skillsets_load_balancer.add_listener("skillsetsListener",port=80)
-        skillsets_targetGroup = skillsets_listener.add_targets("skillsetsTargets",targets=[skillsets_service],protocol=elbv2.ApplicationProtocol.HTTP)
-        skillsets_targetGroup.configure_health_check(path="/healthz")
-        
+        # Import the certificate
+        certificate = acm.Certificate.from_certificate_arn( self,"Certificate", os.getenv("CERT_ARN"))
 
+        # Create ALB
+        skillsets_load_balancer = elbv2.ApplicationLoadBalancer(self, "skillsetsLoadBalancer",vpc=vpc, internet_facing=True,security_group=elb_SG)
+        
+        # Add an HTTP listener
+        skillsets_listener = skillsets_load_balancer.add_listener("skillsetsListener",port=80)
+        # Add a target group for the HTTP listener with a rule for the Host header
+        skillsets_targetGroup = skillsets_listener.add_targets("skillsetsTargets",
+                                                               targets=[skillsets_service],
+                                                               protocol=elbv2.ApplicationProtocol.HTTP,
+                                                               priority=1,
+                                                               conditions=[elbv2.ListenerCondition.host_headers([skillsets_fqdn])])
+        
+        skillsets_targetGroup.configure_health_check(path="/healthz")
+
+        # Add an HTTPS listener
+        https_listener = skillsets_load_balancer.add_listener("HTTPSListener", port=443, certificates=[certificate])
+        # Add a target group for the HTTPS listener with a rule for the Host header
+        https_target_group = https_listener.add_targets("HTTPSTargets",
+                                   targets=[skillsets_service],
+                                   protocol=elbv2.ApplicationProtocol.HTTP,
+                                   priority=1, 
+                                   conditions=[elbv2.ListenerCondition.host_headers([skillsets_fqdn])])
+        https_target_group.configure_health_check(path="/healthz")
+        https_listener.add_target_groups("HTTPSTargetGroup",target_groups=[https_target_group])
+       
+        # Add a redirect from HTTP to HTTPS
+        skillsets_listener.add_action("Redirect", action=elbv2.ListenerAction.redirect(port="443", protocol="HTTPS"))
+    
         ## AutoScaling for skillsets ##
         scaling_skillsets = skillsets_service.auto_scale_task_count(max_capacity=10)
         scaling_skillsets.scale_on_cpu_utilization("CpuScaling",
@@ -549,12 +578,25 @@ class skillsetsStack(Stack):
             target_utilization_percent=80
         )
 
+        # Creates an A Recod and associates it with skillsets_load_balancer
+        #os.getenv("HOSTED_ZONE_ID")
+        full_hosted_zone_id = os.popen("aws route53 list-hosted-zones-by-name --dns-name 'lmasu.co.za' --query 'HostedZones[].Id' --out text").read()
+        # This code splits the input string at each occurrence of the ‘/’ character and takes the last element of the resulting list, which is the desired substring
+        # Using strip()to remove both leading and trailing whitespace 
+        hosted_zone_id = full_hosted_zone_id.split('/')[-1].strip() 
 
+        zone = route53.PublicHostedZone.from_public_hosted_zone_attributes(self,"ImportedHostedZone",zone_name=skillsets_zone_name,hosted_zone_id=hosted_zone_id)
+        skillsets_record = route53.ARecord(self, "SkillsetsRecord",
+            zone=zone,
+            target=route53.RecordTarget.from_alias(route54_targets.LoadBalancerTarget(skillsets_load_balancer)),
+            record_name=skillsets_fqdn
+        )
         ## OUTPUT ###
         # Output the ARN of the ECS service to use in other Stacks.
         # - https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk/CfnOutput.html
 
         cdk.CfnOutput(self,"SkillsetsElbEndpoint",export_name="SkillsetsElbEndpoint",value=skillsets_load_balancer.load_balancer_dns_name)
+        cdk.CfnOutput(self,"SkillsetsRecordDNSName",export_name="SkillsetsRecordDNSName",value=skillsets_record.domain_name)
 
 app=cdk.App()
 skillsetsStack(app, "skillsetsStack", env=cdk.Environment(account=os.getenv("AWS_ACCOUNT_ID"), region=os.getenv("AWS_REGION")),)
