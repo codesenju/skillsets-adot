@@ -20,3 +20,35 @@ curl -X PUT -H "Content-Type: application/json" -d '{"skills": "Python, Flask, D
 ```bash
 curl -X DELETE http://localhost:5000/delete_engineer/Alice
 ```
+
+# OpenTelemetry
+
+### Configuring the agent 
+```bash
+opentelemetry-instrument \
+    --traces_exporter console,otlp \
+    --metrics_exporter console \
+    --service_name skillsets \
+    --exporter_otlp_endpoint 0.0.0.0:4317 \
+    python app.py
+```
+```bash
+opentelemetry-instrument \
+    --traces_exporter console \
+    --metrics_exporter console \
+    flask run
+```
+```bash
+docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 14250:14250 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:latest
+```
+https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
