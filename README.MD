@@ -51,4 +51,10 @@ docker run -d --name jaeger \
   -p 9411:9411 \
   jaegertracing/all-in-one:latest
 ```
+## Multi Arch Build
+```bash
+docker buildx build --push  --platform=linux/amd64,linux/arm64 -t codesenju/skillsets:otel .
+```
+
+# Reference:
 https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
