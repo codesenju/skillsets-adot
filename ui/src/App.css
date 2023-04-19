@@ -1,0 +1,51 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  height: 100vh; /* Set height of container to full viewport height */
+}
+
+.engineer-container,
+.update-container,
+.add-engineer-container {
+  padding: 10px;
+  margin-bottom: 20px;
+  max-width: 400px; /* Set maximum width of sections */
+  text-align: center; /* Center child elements horizontally */
+}
+
+.input-container {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+}
+
+textarea,
+input[type="text"] {
+  width: 100%;
+  max-width: 300px; /* or any other value you prefer */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3e8e41;
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 0;
+}

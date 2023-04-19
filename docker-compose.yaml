@@ -5,6 +5,17 @@ networks:
 volumes:
   redis-data:
 services:
+  react:
+    image:  codesenju/skillsets-react-ui
+    build:
+      context: ui/
+      dockerfile: Dockerfile.node
+    container_name: skillsets-react-ui
+    restart: unless-stopped
+    networks:
+      - devops
+    ports:
+      - 8080:3000
   skillsets:
     image:  codesenju/skillsets:otel
     build: skillsets/

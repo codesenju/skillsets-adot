@@ -1,10 +1,13 @@
 # I wrote this using ChatGPT
 from flask import Flask, jsonify, request
 from prometheus_flask_exporter import PrometheusMetrics
+from flask_cors import CORS
 
 import redis, os
 
 app = Flask(__name__)
+CORS(app)
+
 metrics = PrometheusMetrics(app)
 # static information as metric
 metrics.info('app_info', 'Application info', version='1.0.0')

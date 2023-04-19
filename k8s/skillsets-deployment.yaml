@@ -1,3 +1,7 @@
+################
+## DEPLOYMENT ##
+################
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +13,7 @@ spec:
   selector:
     matchLabels:
       app: skillsets
-  replicas: 1
+#  replicas: 1
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,10 +23,12 @@ spec:
     metadata:
       labels:
         app:  skillsets
+#      annotations:
+#        instrumentation.opentelemetry.io/inject-python: "demo-instrumentation"
     spec:
       containers:
       - name:  skillsets
-        image:  codesenju/skillsets:otel
+        image:  "codesenju/skillsets:otel"
         imagePullPolicy: Always
         command:
           - flask
@@ -59,6 +65,9 @@ spec:
         - containerPort:  80
           name:  skillsets-port
       restartPolicy: Always
+################
+## CONFIG MAP ##
+################
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -86,7 +95,7 @@ metadata:
 spec:
   selector:
     app: skillsets
-  type: ClusterIP
+  type: NodePort
   ports:
   - name: skillsets-port
     protocol: TCP
@@ -108,4 +117,4 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: skillsets
-  targetCPUUtilizationPercentage: 70
+  targetCPUUtilizationPercentage: 80
