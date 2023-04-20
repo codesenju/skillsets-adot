@@ -27,8 +27,10 @@ RUN pip install opentelemetry-distro && \
     pip install opentelemetry-propagator-aws-xray && \
     opentelemetry-bootstrap -a install
 
-CMD opentelemetry-instrument \
-    --traces_exporter otlp \
-    --metrics_exporter otlp \ 
-    --service_name skillsets \
-    flask run
+# CMD opentelemetry-instrument \
+#    --traces_exporter otlp \
+#    --metrics_exporter otlp \ 
+#    --service_name skillsets \
+#   flask run
+CMD uwsgi --http 0.0.0.0:5000 --wsgi-file app.py --callable app
+# CMD flask run
