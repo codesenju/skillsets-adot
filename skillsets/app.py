@@ -6,14 +6,18 @@ from flask_cors import CORS
 import redis, os
 
 app = Flask(__name__)
+# CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "PUT", "DELETE"])
 CORS(app)
+
+# res.header("Access-Control-Allow-Origin", "*");
 
 metrics = PrometheusMetrics(app)
 # static information as metric
 metrics.info('app_info', 'Application info', version='1.0.0')
 
-host=os.getenv("REDIS_HOST")
-port=os.getenv("REDIS_PORT")
+host=os.getenv("REDIS_HOST","localhost")
+port=os.getenv("REDIS_PORT","6379")
+
 r = redis.Redis(host=host, port=port, db=0)
 
 @app.route('/', methods=['GET'])
@@ -24,7 +28,6 @@ def index():
         engineer_data[key.decode()] = r.get(key).decode()
     
     # Return a welcome message and the list of engineers, or an error message if there are ====
-    # 
     # =no engineers
     if len(engineer_data) == 0:
         return '<h3>Welcome to Skillsets! No engineers with skillsets to display.</h3> <p>Please add your first engineer by running "curl -X POST -H "Content-Type: application/json" -d \'{\"name\": \"Alice\", \"skills\": \"Python, SQL, Flask\"}\' http://HOST:5000/add_engineer".</p>'
@@ -43,18 +46,19 @@ def add_engineer():
     
     # Validate the engineer data format
     if 'name' not in engineer_data or 'skills' not in engineer_data:
-        return jsonify({'error': 'Invalid engineer data format'})
+        return jsonify({'error': 'Invalid engineer data format'}), 400
     
     # Check if the engineer name already exists in the database
     if r.exists(engineer_data['name']):
         # Return an error message if the name already exists
-        return jsonify({'error': 'Engineer name already exists'})
+        return jsonify({'error': 'Engineer name already exists'}), 409
     
     # Add the engineer to the Redis database
     r.set(engineer_data['name'], engineer_data['skills'])
     
     # Return a success message
-    return jsonify({'message': 'Engineer added successfully'})
+    return jsonify({'message': 'Engineer added successfully'}), 200
+
 
 @app.route('/update_engineer_skillset/<engineer_name>', methods=['PUT'])
 def update_engineer_skillset(engineer_name):
@@ -63,14 +67,13 @@ def update_engineer_skillset(engineer_name):
     
     # Check if the engineer name exists in the Redis database
     if not r.exists(engineer_name):
-        return jsonify({'message': 'Engineer name not found'})
+        return jsonify({'message': 'Engineer name not found'}), 404
     
     # Update the skill set in the Redis database
     r.set(engineer_name, new_skill_set)
     
     # Return a success message
-    return jsonify({'message': 'Skillset updated successfully'})
-
+    return jsonify({'message': 'Skillset updated successfully'}), 200
 
 @app.route('/get_skills', methods=['GET'])
 def get_skills():
@@ -129,12 +132,10 @@ def delete_engineer(engineer_name):
     # Check if the engineer exists in the Redis database
     if not r.exists(engineer_name):
         return f"Engineer with name '{engineer_name}' does not exist", 404
-
     # Delete the engineer from the Redis database
     r.delete(engineer_name)
-
     # Return a success message
-    return f"Engineer with name '{engineer_name}' has been deleted", 200
+    return f"Engineer with name '{engineer_name}' has been deleted",  200
 
 if __name__ == '__main__':
     app.run(debug=True)
