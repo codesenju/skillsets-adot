@@ -13,7 +13,7 @@ const { PeriodicExportingMetricReader, ConsoleMetricExporter } = require('@opent
 const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-node');
 const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
 const { detectResources } = require('@opentelemetry/resources');
-const { awsEksDetector, awsEc2Detector } = require('@opentelemetry/resource-detector-aws');
+const { awsEksDetector, awsEc2Detector , awsEcsDetector} = require('@opentelemetry/resource-detector-aws');
 const { containerDetector } = require('@opentelemetry/resource-detector-container');
 
 const _resource = Resource.default().merge(new Resource({
@@ -39,7 +39,7 @@ diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 // Using the AWS Resource Detectors | AwsEksDetector, awsEcsDetector
 async function start() {
   const resource = await detectResources({
-    detectors: [awsEc2Detector, awsEksDetector, containerDetector],
+    detectors: [awsEc2Detector, awsEksDetector, awsEcsDetector, containerDetector],
   });
 
   const sdk = new opentelemetry.NodeSDK({
