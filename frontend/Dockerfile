@@ -49,6 +49,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/instrumentation.js ./
+# COPY --from=builder --chown=nextjs:nodejs /app/tracing.js ./
+
+
+# Installing Opentelemetry dependencies
+COPY  --from=builder --chown=nextjs:nodejs /app/package.json /app/package-lock.json*  ./
+RUN npm ci
 
 USER nextjs
 
@@ -56,5 +62,6 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-# CMD node --require ./instrumentation.js server.js
-CMD node server.js
+# CMD node --require ./tracing.js server.js
+ CMD node --require ./instrumentation.js server.js
+# CMD node server.js

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: skillsets-ui
-        image: codesenju/skillsets-ui:xray
+        image: codesenju/skillsets-ui:v1
         imagePullPolicy: Always
         env:
         - name: NEXT_PUBLIC_API_ENDPOINT
@@ -33,9 +33,9 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /
             port: 3000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 10
           periodSeconds: 10
   strategy:
     type: RollingUpdate

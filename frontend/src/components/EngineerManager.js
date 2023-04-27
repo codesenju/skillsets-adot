@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from '../styles/Home.module.css';
+//const tracer = require('../../instrumentation')('example-http-client');
 
 const EngineerManager = ({ engineers }) => {
   const [name, setName] = useState('');
@@ -14,13 +15,16 @@ const EngineerManager = ({ engineers }) => {
       return;
     }
     try {
-      const response = await fetch('/api/engineers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, skills }),
-      });
+     
+        const response = await fetch('/api/engineers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, skills }),
+
+        });
+
       const data = await response.json();
       console.log(data);
       alert(`${JSON.stringify(data)}`);

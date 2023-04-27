@@ -5,17 +5,24 @@ networks:
 volumes:
   redis-data:
 services:
-  react:
-    image:  codesenju/skillsets-react-ui
+  ui:
+    image:  codesenju/skillsets-ui:latest
     build:
-      context: ui/
-      dockerfile: Dockerfile.node
-    container_name: skillsets-react-ui
+      context: frontend/
+      dockerfile: Dockerfile
+    container_name: skillsets-ui
+    environment:
+      NEXT_PUBLIC_API_ENDPOINT: "http://skillsets:5000"
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://otel-collector:4317"
+      # OTEL_RESOURCE_ATTRIBUTES: "service.name=skillsets-ui,service.namespace=docker,service.version=1.0"
+      OTEL_ENDPOINT_GRPC: "http://otel-collector:4317"
     restart: unless-stopped
     networks:
       - devops
     ports:
-      - 8080:3000
+      - 3000:3000
+    depends_on:
+      - skillsets
   skillsets:
     image:  codesenju/skillsets:otel
     build: skillsets/
@@ -25,7 +32,7 @@ services:
        REDIS_PORT: "6379"
        OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://otel-collector:4317"
        OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:  "http://otel-collector:4317"
-       OTEL_EXPORTER_OTLP_LOGS_ENDPOINT:  "http://otel-collector:4317"
+#       OTEL_EXPORTER_OTLP_LOGS_ENDPOINT:  "http://otel-collector:4317"
        OTEL_TRACES_SAMPLER: xray
        OTEL_PROPAGATORS: xray
        OTEL_PYTHON_ID_GENERATOR: xray
@@ -34,6 +41,8 @@ services:
       - devops
     ports:
       - 5000:5000
+    depends_on:
+      - redis
   redis:
     image: redis:7
     container_name: redis
