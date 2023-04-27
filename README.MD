@@ -56,5 +56,14 @@ docker run -d --name jaeger \
 docker buildx build --push  --platform=linux/amd64,linux/arm64 -t codesenju/skillsets:otel .
 ```
 
+## React UI
+```bash
+export REACT_APP_API_ENDPOINT=https://uat-skillsets.lmasu.co.za
+
+export REACT_APP_API_ENDPOINT=http://localhost:5000
+
+npm start
+```
+
 # Reference:
 https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
