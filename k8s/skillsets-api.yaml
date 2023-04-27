@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name:  skillsets
-        image:  "codesenju/skillsets:otel"
+        image:  "codesenju/skillsets-api:latest"
         imagePullPolicy: Always
         command:
           - flask
