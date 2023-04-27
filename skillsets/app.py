@@ -45,7 +45,6 @@ def index():
 
 @app.route('/healthz')
 def welcome():
-    updateMemoryCPU()
     return "<h2>100% Healthy!</h1>"
 
 @app.route('/add_engineer', methods=['POST'])
