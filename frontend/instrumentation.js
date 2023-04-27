@@ -39,7 +39,7 @@ diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 // Using the AWS Resource Detectors | AwsEksDetector, awsEcsDetector
 async function start() {
   const resource = await detectResources({
-    detectors: [awsEc2Detector, awsEksDetector, awsEcsDetector, containerDetector],
+    detectors: [awsEksDetector, awsEcsDetector, containerDetector],
   });
 
   const sdk = new opentelemetry.NodeSDK({
