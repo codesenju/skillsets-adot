@@ -60,17 +60,17 @@ spec:
 #############
 ##   HPA   ##
 #############
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: skillsets-ui
-  namespace: skillsets
-spec:
-  maxReplicas: 20
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: skillsets-ui
-  targetCPUUtilizationPercentage: 80
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: skillsets-ui
+#   namespace: skillsets
+# spec:
+#   maxReplicas: 20
+#   minReplicas: 1
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: skillsets-ui
+#   targetCPUUtilizationPercentage: 80

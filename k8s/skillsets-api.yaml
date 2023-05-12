@@ -23,8 +23,8 @@ spec:
     metadata:
       labels:
         app:  skillsets
-#      annotations:
-#        instrumentation.opentelemetry.io/inject-python: "demo-instrumentation"
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "demo-instrumentation"
     spec:
       containers:
       - name:  skillsets
@@ -104,17 +104,17 @@ spec:
 #############
 ##   HPA   ##
 #############
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: skillsets
-  namespace: skillsets
-spec:
-  maxReplicas: 20
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: skillsets
-  targetCPUUtilizationPercentage: 80
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: skillsets
+#   namespace: skillsets
+# spec:
+#   maxReplicas: 20
+#   minReplicas: 1
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: skillsets
+#   targetCPUUtilizationPercentage: 80
