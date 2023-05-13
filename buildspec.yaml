@@ -50,10 +50,10 @@ phases:
       # Apply changes to our Application using kustomize and kubectl
       - echo "Apply changes to kube manifests"             
       # Pre-flight check
-      - kubectl apply -k kustomize/${ENVIRONMENT} --dry-run=client -oyaml | envsubst
+      - kubectl apply -k kustomize/dev --dry-run=client -oyaml | envsubst
       # Deploy
       - echo "Completed applying changes to Kubernetes Objects"   
-      - kubectl apply -k kustomize/${ENVIRONMENT} --dry-run=client -oyaml | envsubst | kubectl apply -f -
+      - kubectl apply -k kustomize/dev --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
       # Additional Commands to view your credentials      
