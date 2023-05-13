@@ -53,7 +53,7 @@ phases:
       - kubectl apply -k kustomize/$ENVIRONMENT --dry-run=client -oyaml | envsubst
       # Deploy
       - echo "Completed applying changes to Kubernetes Objects"   
-      # - kubectl apply -k kustomize/$ENVIRONMENT
+      - kubectl apply -k kustomize/$ENVIRONMENT --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
       # Additional Commands to view your credentials      
