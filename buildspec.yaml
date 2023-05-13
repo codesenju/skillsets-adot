@@ -50,7 +50,7 @@ phases:
       # Apply changes to our Application using kustomize and kubectl
       - echo "Apply changes to kube manifests"             
       # Pre-flight check
-      - kubectl apply -k kustomize/dev --dry-run=client -oyaml | envsubst
+      - kubectl apply -k kustomize/prod --dry-run=client -oyaml | envsubst
       # Deploy
       - echo "Completed applying changes to Kubernetes Objects"   
       - kubectl apply -k kustomize/prod --dry-run=client -oyaml | envsubst | kubectl apply -f -
