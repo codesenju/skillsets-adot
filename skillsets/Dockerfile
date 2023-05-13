@@ -8,8 +8,8 @@ ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
-COPY requirements.txt .
-COPY app.py  .
+COPY ./requirements.txt .
+COPY ./app.py  .
 
 RUN apt-get update -y && \
     apt-get install -y bind9-utils curl && \
