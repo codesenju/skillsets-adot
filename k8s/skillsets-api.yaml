@@ -13,7 +13,7 @@ spec:
   selector:
     matchLabels:
       app: skillsets
-#  replicas: 1
+#  replicas: 0
   strategy:
     rollingUpdate:
       maxSurge: 25%
