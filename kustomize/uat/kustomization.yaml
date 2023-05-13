@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Image with the name CONTAINER_IMAGE should have its image name 
+# changed to codesenju/skillsets-api and its tag changed to latest
+images:
+ - name: CONTAINER_IMAGE
+   newName: $REPOSITORY_URI
+   newTag: $TAG
+
+namespace: uat
+namePrefix: uat-
+
+# Generate a configmap
+configMapGenerator:
+- name: skillsets-config
+  literals:
+  - REDIS_HOST=localhosts
+  - REDIS_PORT="6379"
+  - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
+# Takes the name of the redis service and uses it as the value for the REDIS_HOST key in the skillsets-config ConfigMap.
+replacements:
+- source:
+    version: v1
+    kind: Service
+    name: redis
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: ConfigMap
+      name: skillsets-config
+    fieldPaths:
+    - data.REDIS_HOST
+
+# This specifies that the patch in ingress-patch.yaml 
+# should be applied to an Ingress resource named skillsets-ingress 
+# in the networking.k8s.io/v1 API group and version. 
+patches:
+- path: ingress-patch.yaml
+  target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: skillsets-ingress
+
+resources:
+- ../base/

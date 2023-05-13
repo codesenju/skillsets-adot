@@ -1,0 +1,67 @@
+################
+## DEPLOYMENT ##
+################
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  skillsets
+  namespace: skillsets
+  labels:
+    app:  skillsets
+spec:
+  selector:
+    matchLabels:
+      app: skillsets
+#  replicas: 0
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  skillsets
+#      annotations:
+#        instrumentation.opentelemetry.io/inject-python: "demo-instrumentation"
+    spec:
+      containers:
+      - name:  skillsets
+        image:  CONTAINER_IMAGE
+        imagePullPolicy: Always
+        command:
+          - flask
+        args:
+          - run
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+#        livenessProbe:
+#          tcpSocket:
+#            port: 5000
+#          initialDelaySeconds: 5
+#          timeoutSeconds: 5
+#          successThreshold: 1
+#          failureThreshold: 3
+#          periodSeconds: 10
+#        readinessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: 5000
+#          initialDelaySeconds: 5
+#          timeoutSeconds: 2
+#          successThreshold: 1
+#          failureThreshold: 3
+#          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: skillsets-config
+        ports:
+        - containerPort:  80
+          name:  skillsets-port
+      restartPolicy: Always
