@@ -49,10 +49,11 @@ phases:
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
       # Apply changes to our Application using kustomize and kubectl
       - echo "Apply changes to kube manifests"             
-      #- kubectl apply -f k8s/
-      - kubectl apply -k kustomize/uat --dry-run=client -oyaml
-      #- kustomize build kustomize/uat | envsubst | kubectl --dry-run=client -oyaml apply -f -
-      - echo "Completed applying changes to Kubernetes Objects"           
+      # Pre-flight check
+      - kubectl apply -k kustomize/$ENVIRONMENT --dry-run=client -oyaml
+      # Deploy
+      - echo "Completed applying changes to Kubernetes Objects"   
+      - kubectl apply -k kustomize/$ENVIRONMENT
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
       # Additional Commands to view your credentials      
