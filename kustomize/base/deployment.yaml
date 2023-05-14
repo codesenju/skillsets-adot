@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name:  skillsets
-        image:  CONTAINER_IMAGE
+        image:  API_CONTAINER_IMAGE
         imagePullPolicy: Always
         command:
           - flask

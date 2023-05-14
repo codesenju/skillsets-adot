@@ -4,7 +4,7 @@ kind: Kustomization
 # Image with the name CONTAINER_IMAGE should have its image name 
 # changed to codesenju/skillsets-api and its tag changed to latest
 images:
- - name: CONTAINER_IMAGE
+ - name: API_CONTAINER_IMAGE
    newName: $REPOSITORY_URI
    newTag: $TAG
 
@@ -43,6 +43,15 @@ patches:
     version: v1
     kind: Ingress
     name: skillsets-ingress
-
+- patch: |-
+    - op: replace # action 
+      path: /spec/rules/0/host # resource we want to change
+      value: dev-skillsets-ui.lmasu.co.za # value we want to use for patching 
+  target:
+    group: networking.k8s.io
+    version: v1
+    kind: Ingress
+    name: skillsets-ui-ingress
+    
 resources:
 - ../base/

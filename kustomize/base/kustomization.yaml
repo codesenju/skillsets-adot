@@ -4,4 +4,5 @@ resources:
   - service.yaml
   - namespace.yaml
   - redis.yaml
+  - ui-manifests.yaml
   - ingress.yaml
