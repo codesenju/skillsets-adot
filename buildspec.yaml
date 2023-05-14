@@ -1,4 +1,6 @@
 version: 0.2
+env:
+  git-credential-helper: yes
 phases:
   install:
     commands:
@@ -49,34 +51,44 @@ phases:
       - echo "Update Kube Config"      
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
       # Update Image using kustomize
-      - cd kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
+      # - cd kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
       # Apply changes to our Application using kustomize and kubectl
       #- echo "Apply changes to kube manifests"             
       # Pre-flight check
       #- kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
-      - kustomize build
-      - pwd
-      - whoami
+      # - kustomize build
+      # - pwd
+      # - whoami
       # - git status 
       # - git remote -v
       # ARGOCD AUTH
       - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
-      - argocd --auth-token $ARGOCD_TOKEN app list
-      - argocd --auth-token $ARGOCD_TOKEN app get uat-skillsets
+      # - argocd --auth-token $ARGOCD_TOKEN app list
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets
       # Deploy
       # - echo "Completed applying changes to Kubernetes Objects"
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
+      # PREPARE ARTIFACT   
       - cd ../../
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
+      # Update the argocd branch
+      - TEMP_FOLDER="$(mktemp -d)"
+      - echo "Clone the repository..."
+      - git clone -b argocd "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/skillsets" ${TEMP_FOLDER}
+      - cd ${TEMP_FOLDER}
+      - cd kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
+      - git commit -m "updated image to $REPOSITORY_URI:$TAG"
+      - git push
+      - sleep 10
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets
       # Additional Commands to view your credentials      
       #- echo "Credentials Value is..  ${CREDENTIALS}"      
       #- echo "AWS_ACCESS_KEY_ID...  ${AWS_ACCESS_KEY_ID}"            
       #- echo "AWS_SECRET_ACCESS_KEY...  ${AWS_SECRET_ACCESS_KEY}"            
       #- echo "AWS_SESSION_TOKEN...  ${AWS_SESSION_TOKEN}"            
       #- echo "AWS_EXPIRATION...  $AWS_EXPIRATION"             
-      #- echo "EKS_CLUSTER_NAME...  $EKS_CLUSTER_NAME"   
-      # PREPARE ARTIFACT      
+      #- echo "EKS_CLUSTER_NAME...  $EKS_CLUSTER_NAME"      
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
 artifacts:
   files: 
