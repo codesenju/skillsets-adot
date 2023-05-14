@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # Reference:
 # - https://ecsworkshop.com/app_mesh/appmesh-implementation/mesh-crystal-app/
