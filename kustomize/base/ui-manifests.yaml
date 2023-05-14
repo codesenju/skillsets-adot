@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: skillsets-ui
-        image: UI_CONTAINER_IMAGE
+        image: codesenju/skillsets-api:v1
         imagePullPolicy: Always
         env:
         - name: NEXT_PUBLIC_API_ENDPOINT

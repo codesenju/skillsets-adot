@@ -4,7 +4,7 @@ kind: Kustomization
 # Image with the name CONTAINER_IMAGE should have its image name 
 # changed to codesenju/skillsets-api and its tag changed to latest
 images:
- - name: API_CONTAINER_IMAGE
+ - name: codesenju/skillsets-api
    newName: $REPOSITORY_URI
    newTag: $TAG
 
