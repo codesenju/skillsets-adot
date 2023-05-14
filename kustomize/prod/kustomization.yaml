@@ -43,6 +43,9 @@ patches:
     version: v1
     kind: Ingress
     name: skillsets-ingress
+- path: mem_cpu_patch.yaml
+- path: health_check_patch.yaml
+- path: instrumentation.yaml
 
 resources:
 - ../base/

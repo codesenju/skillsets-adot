@@ -6,7 +6,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name:  skillsets
-  namespace: skillsets
   labels:
     app:  skillsets
 spec:
@@ -23,8 +22,6 @@ spec:
     metadata:
       labels:
         app:  skillsets
-#      annotations:
-#        instrumentation.opentelemetry.io/inject-python: "demo-instrumentation"
     spec:
       containers:
       - name:  skillsets
@@ -34,30 +31,6 @@ spec:
           - flask
         args:
           - run
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-          limits:
-            cpu: 100m
-            memory: 100Mi
-#        livenessProbe:
-#          tcpSocket:
-#            port: 5000
-#          initialDelaySeconds: 5
-#          timeoutSeconds: 5
-#          successThreshold: 1
-#          failureThreshold: 3
-#          periodSeconds: 10
-#        readinessProbe:
-#          httpGet:
-#            path: /healthz
-#            port: 5000
-#          initialDelaySeconds: 5
-#          timeoutSeconds: 2
-#          successThreshold: 1
-#          failureThreshold: 3
-#          periodSeconds: 10
         envFrom:
         - configMapRef:
             name: skillsets-config
