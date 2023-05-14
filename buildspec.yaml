@@ -67,6 +67,7 @@ phases:
       # - echo "Completed applying changes to Kubernetes Objects"
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
+      - cd ../../
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
       # Additional Commands to view your credentials      
       #- echo "Credentials Value is..  ${CREDENTIALS}"      
