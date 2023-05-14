@@ -78,6 +78,8 @@ phases:
       - git clone -b argocd "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/skillsets" ${TEMP_FOLDER}
       - cd ${TEMP_FOLDER}
       - cd kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
+      - git config --global user.email "lmasu+devops@amazon.com"
+      - git config --global user.name "lmasu"
       - git commit -m "updated image to $REPOSITORY_URI:$TAG"
       - git push
       - sleep 10
