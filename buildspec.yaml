@@ -76,7 +76,7 @@ phases:
       #- echo "AWS_EXPIRATION...  $AWS_EXPIRATION"             
       #- echo "EKS_CLUSTER_NAME...  $EKS_CLUSTER_NAME"   
       # PREPARE ARTIFACT      
-      - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
+      # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
 artifacts:
   files: 
     - build.json   
