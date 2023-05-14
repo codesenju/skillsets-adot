@@ -53,9 +53,8 @@ docker run -d --name jaeger \
 ```
 ## Multi Arch Build
 ```bash
-docker buildx build --push  --platform=linux/amd64,linux/arm64 -t codesenju/skillsets:otel .
+docker buildx build --push  --platform=linux/amd64,linux/arm64 -t codesenju/skillsets-api:latest .
 ```
-
 ## React UI
 ```bash
 export REACT_APP_API_ENDPOINT=https://uat-skillsets.lmasu.co.za
@@ -66,4 +65,5 @@ npm start
 ```
 
 # Reference:
-https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
+- https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
+- https://www.stacksimplify.com/aws-eks/aws-devops-eks/learn-to-master-devops-on-aws-eks-using-aws-codecommit-codebuild-codepipeline/
