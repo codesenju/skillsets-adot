@@ -9,7 +9,7 @@ namePrefix: prod-
 images:
 - name: SKILLSETS_API_IMAGE_NAME
   newName: codesenju/skilslets-api
-  newTag: v1
+  newTag: latest
 
 # Generate a configmap
 configMapGenerator:

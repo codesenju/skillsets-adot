@@ -6,7 +6,7 @@ kind: Kustomization
 images:
 - name: SKILLSETS_API_IMAGE_NAME
   newName: codesenju/skilslets-api
-  newTag: v1
+  newTag: latest
 
 namespace: dev
 namePrefix: dev-

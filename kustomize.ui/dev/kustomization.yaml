@@ -3,12 +3,10 @@ kind: Kustomization
 
 # Image with the name CONTAINER_IMAGE should have its image name 
 # changed to codesenju/skillsets-api and its tag changed to latest
-#images:
-# - name: codesenju/skillsets-ui
-#   newName: codesenju/skillsets-ui
-#   newTag: v1
-  #  newName: $REPOSITORY_URI
-  #  newTag: $TAG
+images:
+ - name: SKILLSETS_UI_IMAGE_NAME
+   newName: codesenju/skillsets-ui
+   newTag: v1
 
 namespace: dev
 namePrefix: dev-
@@ -24,22 +22,21 @@ patches:
     - op: replace
       path: /spec/template/spec/containers/0/env/0/value
       value: dev-skillsets
-
-- path: ingress-patch.yaml
+#- path: ingress-patch.yaml
+#  target:
+#    group: networking.k8s.io
+#    version: v1
+#    kind: Ingress
+#    name: skillsets-ui-ingress
+- patch: |-
+     - op: replace # action 
+       path: /spec/rules/0/host # resource we want to change
+       value: dev-skillsets-ui.lmasu.co.za # value we want to use for patching 
   target:
-    group: networking.k8s.io
-    version: v1
-    kind: Ingress
-    name: skillsets-ui-ingress
-# - patch: |-
-#     - op: replace # action 
-#       path: /spec/rules/0/host # resource we want to change
-#       value: dev-skillsets-ui.lmasu.co.za # value we want to use for patching 
-#   target:
-#     group: networking.k8s.io
-#     version: v1
-#     kind: Ingress
-#     name: skillsets-ui-ingress
+     group: networking.k8s.io
+     version: v1
+     kind: Ingress
+     name: skillsets-ui-ingress
     
 resources:
 - ../base/
