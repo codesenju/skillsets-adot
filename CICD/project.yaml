@@ -1,0 +1,60 @@
+arn: arn:aws:codebuild:${AWS_REGION}:${AWS_ACCOUNT_ID}:project/eks-devops-cb-for-pipeline
+artifacts:
+  encryptionDisabled: false
+  name: eks-devops-cb-for-pipeline
+  packaging: NONE
+  type: CODEPIPELINE
+badge:
+  badgeEnabled: false
+cache:
+  type: NO_CACHE
+created: '2023-05-12T11:29:36.210000+02:00'
+description: CodeBuild Project for EKS DevOps Pipeline
+encryptionKey: arn:aws:kms:${AWS_REGION}:${AWS_ACCOUNT_ID}:alias/aws/s3
+environment:
+  computeType: BUILD_GENERAL1_SMALL
+  environmentVariables:
+  - name: REPOSITORY_URI
+    type: PLAINTEXT
+    value: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/skillsets-api
+  - name: EKS_KUBECTL_ROLE_ARN
+    type: PLAINTEXT
+    value: arn:aws:iam::${AWS_ACCOUNT_ID}:role/EksCodeBuildKubectlRole
+  - name: EKS_CLUSTER_NAME
+    type: PLAINTEXT
+    value: uat
+  - name: ENV
+    type: PLAINTEXT
+    value: uat
+  - name: ARGOCD_USERNAME
+    type: PLAINTEXT
+    value: admin
+  - name: ARGOCD_PASSWORD
+    type: PLAINTEXT
+    value: Argocd@dmin
+  - name: ARGOCD_SERVER
+    type: PLAINTEXT
+    value: argocd.lmasu.co.za
+  image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+  imagePullCredentialsType: CODEBUILD
+  privilegedMode: true
+  type: LINUX_CONTAINER
+fileSystemLocations: []
+lastModified: '2023-05-14T23:16:30.772000+02:00'
+logsConfig:
+  cloudWatchLogs:
+    groupName: eks-deveops-cb-pipeline
+    status: ENABLED
+  s3Logs:
+    encryptionDisabled: false
+    status: DISABLED
+name: eks-devops-cb-for-pipeline
+projectVisibility: PRIVATE
+queuedTimeoutInMinutes: 480
+secondarySourceVersions: []
+serviceRole: arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/codebuild-eks-devops-cb-for-pipeline-service-role
+source:
+  insecureSsl: false
+  type: CODEPIPELINE
+tags: []
+timeoutInMinutes: 60

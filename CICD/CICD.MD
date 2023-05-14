@@ -98,3 +98,14 @@ echo "EKS_CLUSTER_NAME = $EKS_CLUSTER"
 ```bash
 aws codepipeline create-pipeline --pipeline-name eks-devops-pipe --pipeline file://pipeline.json
 ```
+
+```bash
+aws codepipeline get-pipeline --name eks-devops-pipeline --query 'pipeline' --output yaml > pipeline.yaml
+
+aws codepipeline create-pipeline --cli-input-yaml file://pipeline.yaml
+```
+
+## Codebuild
+```bash
+aws codebuild batch-get-projects --names eks-devops-cb-for-pipeline --query 'projects[0]' --output yaml > project.yaml
+```

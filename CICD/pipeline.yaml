@@ -1,0 +1,43 @@
+artifactStore:
+  location: codepipeline-us-east-1-153184728153
+  type: S3
+name: eks-devops-pipeline
+roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AWSCodePipelineServiceRole-us-east-1-eks-devops-pipeline
+stages:
+- actions:
+  - actionTypeId:
+      category: Source
+      owner: AWS
+      provider: CodeCommit
+      version: '1'
+    configuration:
+      BranchName: main
+      OutputArtifactFormat: CODE_ZIP
+      PollForSourceChanges: 'false'
+      RepositoryName: skillsets
+    inputArtifacts: []
+    name: Source
+    namespace: SourceVariables
+    outputArtifacts:
+    - name: SourceArtifact
+    region: us-east-1
+    runOrder: 1
+  name: Source
+- actions:
+  - actionTypeId:
+      category: Build
+      owner: AWS
+      provider: CodeBuild
+      version: '1'
+    configuration:
+      ProjectName: eks-devops-cb-for-pipeline
+    inputArtifacts:
+    - name: SourceArtifact
+    name: Build
+    namespace: BuildVariables
+    outputArtifacts:
+    - name: BuildArtifact
+    region: us-east-1
+    runOrder: 1
+  name: Build
+version: 1
