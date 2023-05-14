@@ -5,8 +5,10 @@ phases:
       - echo "Install Phase - Nothing to do using latest Amazon Linux Docker Image for CodeBuild which has all AWS Tools - https://github.com/aws/aws-codebuild-docker-images/blob/master/al2/x86_64/standard/3.0/Dockerfile"
       - curl --version
       - bash --version
-      # - curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-      # - kustomize version
+      - curl -sLo /tmp/kustomize.tar.gz  https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz
+      - tar xzvf /tmp/kustomize.tar.gz -C /usr/bin/
+      - rm -rf /tmp/kustomize.tar.gz
+      - kustomize version
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version
@@ -47,13 +49,16 @@ phases:
       # Setup kubectl with our EKS Cluster              
       - echo "Update Kube Config"      
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+      # Update Image using kustomize
+      - cd kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
       # Apply changes to our Application using kustomize and kubectl
-      - echo "Apply changes to kube manifests"             
+      #- echo "Apply changes to kube manifests"             
       # Pre-flight check
-      - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
+      #- kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
+      - kustomize build
       # Deploy
-      - echo "Completed applying changes to Kubernetes Objects"   
-      - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
+      - echo "Completed applying changes to Kubernetes Objects"
+      # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
       # Additional Commands to view your credentials      
