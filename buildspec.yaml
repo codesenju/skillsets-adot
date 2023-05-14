@@ -7,7 +7,7 @@ phases:
       - tar xzvf /tmp/kustomize.tar.gz -C /usr/bin/ && chmod +x /usr/bin/kustomize && rm -rf /tmp/kustomize.tar.gz
       - kustomize version
       - curl -sLo /usr/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.7.2/argocd-linux-amd64 && chmod +x /usr/bin/argocd
-      - argocd version
+      - argocd version --client
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version
