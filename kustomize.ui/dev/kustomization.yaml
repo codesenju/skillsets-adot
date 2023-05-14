@@ -31,6 +31,15 @@ patches:
     version: v1
     kind: Ingress
     name: skillsets-ui-ingress
-
+# - patch: |-
+#     - op: replace # action 
+#       path: /spec/rules/0/host # resource we want to change
+#       value: dev-skillsets-ui.lmasu.co.za # value we want to use for patching 
+#   target:
+#     group: networking.k8s.io
+#     version: v1
+#     kind: Ingress
+#     name: skillsets-ui-ingress
+    
 resources:
 - ../base/

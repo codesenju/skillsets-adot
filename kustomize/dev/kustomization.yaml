@@ -1,37 +1,37 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Image with the name codesenju/skillsets-api should have its image name 
-# changed to *** and its tag changed to latest
+# Image with the name SKILLSETS_API_IMAGE_NAME should have its image name 
+# changed to codesenju/skillsets-api and its tag changed
 images:
- - name: codesenju/skillsets-api
-   newName: $REPOSITORY_URI
-   newTag: $TAG
+- name: SKILLSETS_API_IMAGE_NAME
+  newName: codesenju/skilslets-api
+  newTag: v1
 
 namespace: dev
 namePrefix: dev-
 
 # Generate a configmap
 configMapGenerator:
-- name: skillsets-config
-  literals:
+- literals:
   - REDIS_HOST=localhost
   - REDIS_PORT="6379"
   - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+  name: skillsets-config
 
 # Takes the name of the redis service and uses it as the value for the REDIS_HOST key in the skillsets-config ConfigMap.
 replacements:
 - source:
-    version: v1
+    fieldPath: metadata.name
     kind: Service
     name: redis
-    fieldPath: metadata.name
+    version: v1
   targets:
-  - select:
+  - fieldPaths:
+    - data.REDIS_HOST
+    select:
       kind: ConfigMap
       name: skillsets-config
-    fieldPaths:
-    - data.REDIS_HOST
 
 # This specifies that the patch in ingress-patch.yaml 
 # should be applied to an Ingress resource named skillsets-ingress 
@@ -40,18 +40,9 @@ patches:
 - path: ingress-patch.yaml
   target:
     group: networking.k8s.io
-    version: v1
     kind: Ingress
     name: skillsets-ingress
-# - patch: |-
-#     - op: replace # action 
-#       path: /spec/rules/0/host # resource we want to change
-#       value: dev-skillsets-ui.lmasu.co.za # value we want to use for patching 
-#   target:
-#     group: networking.k8s.io
-#     version: v1
-#     kind: Ingress
-#     name: skillsets-ui-ingress
-    
+    version: v1
+
 resources:
 - ../base/

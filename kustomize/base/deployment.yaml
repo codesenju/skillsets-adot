@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name:  skillsets
-        image:  codesenju/skillsets-api:latest
+        image:  SKILLSETS_API_IMAGE_NAME
         imagePullPolicy: Always
         command:
           - flask
