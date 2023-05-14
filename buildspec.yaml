@@ -3,12 +3,11 @@ phases:
   install:
     commands:
       - echo "Install Phase - Nothing to do using latest Amazon Linux Docker Image for CodeBuild which has all AWS Tools - https://github.com/aws/aws-codebuild-docker-images/blob/master/al2/x86_64/standard/3.0/Dockerfile"
-      - curl --version
-      - bash --version
       - curl -sLo /tmp/kustomize.tar.gz  https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz
-      - tar xzvf /tmp/kustomize.tar.gz -C /usr/bin/
-      - rm -rf /tmp/kustomize.tar.gz
+      - tar xzvf /tmp/kustomize.tar.gz -C /usr/bin/ && chmod +x /usr/bin/kustomize && rm -rf /tmp/kustomize.tar.gz
       - kustomize version
+      - curl -sLo /usr/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.7.2/argocd-linux-amd64 && chmod +x /usr/bin/argocd
+      - argocd version
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version
@@ -57,7 +56,7 @@ phases:
       #- kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
       - kustomize build
       # Deploy
-      - echo "Completed applying changes to Kubernetes Objects"
+      # - echo "Completed applying changes to Kubernetes Objects"
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
       # Create Artifacts which we can use if we want to continue our pipeline for other stages
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
