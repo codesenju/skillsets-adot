@@ -27,10 +27,10 @@ spec:
       - name:  skillsets
         image:  SKILLSETS_API_IMAGE_NAME
         imagePullPolicy: Always
-        command:
-          - flask
-        args:
-          - run
+#        command:
+#          - flask
+#        args:
+#          - run
         envFrom:
         - configMapRef:
             name: skillsets-config
