@@ -59,6 +59,10 @@ phases:
       - whoami
       - git status 
       - git remote -v
+      # ARGOCD AUTH
+      - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
+      - argocd --auth-token $ARGOCD_TOKEN app list
+      - argocd --auth-token $ARGOCD_TOKEN app get uat-skillsets
       # Deploy
       # - echo "Completed applying changes to Kubernetes Objects"
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
