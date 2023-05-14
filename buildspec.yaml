@@ -55,7 +55,7 @@ phases:
       # Pre-flight check
       #- kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
       - kustomize build
-      - cd pwd
+      - pwd
       - whoami
       - git status 
       - git remote -v
