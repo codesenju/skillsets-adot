@@ -5,7 +5,7 @@ kind: Kustomization
 # changed to codesenju/skillsets-api and its tag changed
 images:
 - name: SKILLSETS_API_IMAGE_NAME
-  newName: codesenju/skilslets-api
+  newName: codesenju/skillsets-api
   newTag: latest
 
 namespace: dev
