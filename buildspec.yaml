@@ -51,8 +51,8 @@ phases:
       # Authenticate ARGOCD SERVER
       - echo "Authenticate argocd server"
       - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
-      - echo "argocd server status before push"
-      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets
+      - echo "Argocd server application status before push"
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets --refresh
       - echo "Completed applying changes to Kubernetes Objects"
       # Deploy
       # Update the argocd branch & deploy new image
@@ -68,11 +68,11 @@ phases:
       - git commit -m "Updated the image to $REPOSITORY_URI:$TAG"
       - git push
       - sleep 10
-      - echo "Argocd server status after push"
-      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets
-      - echo "Sync argocd application"
-      - argocd --auth-token $ARGOCD_TOKEN app sync ${ENV}-skillsets 
-      - echo "Wait for sync to complete"
+      - echo "Argocd server application status after push"
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets --refresh
+      - echo "Sync argocd server application"
+      - argocd --auth-token $ARGOCD_TOKEN app sync ${ENV}-skillsets
+      - echo "Wait for argocd server application sync to complete"
       - argocd --auth-token $ARGOCD_TOKEN app wait ${ENV}-skillsets
       # Additional Commands to view your credentials      
       #- echo "Credentials Value is..  ${CREDENTIALS}"      
