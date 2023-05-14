@@ -55,6 +55,9 @@ phases:
       # Pre-flight check
       #- kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
       - kustomize build
+      - cd ../../
+      - git status 
+      - git remote -v
       # Deploy
       # - echo "Completed applying changes to Kubernetes Objects"
       # - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
