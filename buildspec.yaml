@@ -59,7 +59,7 @@ phases:
       - echo "Updating argocd branch and deploying the new image"
       - TEMP_FOLDER="$(mktemp -d)"
       - echo "Clone the argoccd branch..."
-      - git clone -b argocd "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/argocd-k8s-manifests" ${TEMP_FOLDER}
+      - git clone -b main "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/argocd-k8s-manifests" ${TEMP_FOLDER}
       - cd ${TEMP_FOLDER}
       - cd skillsets/kustomize/$ENV &&  kustomize edit set image SKILLSETS_API_IMAGE_NAME=$REPOSITORY_URI:$TAG
       - git config --global user.email "lmasu+devops@amazon.com"
