@@ -1,8 +1,8 @@
 artifactStore:
-  location: codepipeline-us-east-1-153184728153
+  location: codepipeline-${AWS_REGION}-153184728153
   type: S3
 name: eks-devops-pipeline
-roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AWSCodePipelineServiceRole-us-east-1-eks-devops-pipeline
+roleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AWSCodePipelineServiceRole-${AWS_REGION}-eks-devops-pipeline
 stages:
 - actions:
   - actionTypeId:
@@ -20,7 +20,7 @@ stages:
     namespace: SourceVariables
     outputArtifacts:
     - name: SourceArtifact
-    region: us-east-1
+    region: ${AWS_REGION}
     runOrder: 1
   name: Source
 - actions:
@@ -37,7 +37,7 @@ stages:
     namespace: BuildVariables
     outputArtifacts:
     - name: BuildArtifact
-    region: us-east-1
+    region: ${AWS_REGION}
     runOrder: 1
   name: Build
 version: 1

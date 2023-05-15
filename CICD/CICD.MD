@@ -10,8 +10,8 @@ aws ecr create-repository --repository-name $ECR_REPO_NAME --image-tag-mutabilit
 
 ECR_REPO_URL=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text)
 
-587878432697.dkr.ecr.us-east-1.amazonaws.com/skillsets-api
-587878432697.dkr.ecr.us-east-1.amazonaws.com/skillsets-ui
+XXXXXXXXXXXX.dkr.ecr.us-east-1.amazonaws.com/skillsets-api
+XXXXXXXXXXXX.dkr.ecr.us-east-1.amazonaws.com/skillsets-ui
 ```
 
 ### Create CodeCommit Repository and push local code to repo
@@ -88,8 +88,8 @@ kubectl get configmap aws-auth -o yaml -n kube-system
 ###
 ```bash
 AWS_REGIOIN=$(aws configure get region)
-# 587878432697.dkr.ecr.us-east-1.amazonaws.com/skillsets-api
-# 587878432697.dkr.ecr.us-east-1.amazonaws.com/skillsets-ui
+# XXXXXXXXXXXX.dkr.ecr.us-east-1.amazonaws.com/skillsets-api
+# XXXXXXXXXXXX.dkr.ecr.us-east-1.amazonaws.com/skillsets-ui
 # Environment Variables for CodeBuild
 echo "REPOSITORY_URI = ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/skillsets"
 echo "EKS_KUBECTL_ROLE_ARN = arn:aws:iam::${AWS_ACCOUNT_ID}:role/EksCodeBuildKubectlRole"
