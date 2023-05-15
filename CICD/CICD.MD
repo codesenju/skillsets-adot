@@ -141,6 +141,10 @@ phases:
 
 ### Add IAM permissions to Codebuild
 ```bash
+#  Get the ARN of a secret by its name
+SECRET_NAME="my-docker-secret"
+aws secretsmanager describe-secret --secret-id $SECRET_NAME --query 'ARN' --output text
+
 cat <<EOF> secret-policy.json
 {
     "Version": "2012-10-17",
@@ -149,7 +153,7 @@ cat <<EOF> secret-policy.json
             "Sid": "CodeBuildSecretsManagerAccess",
             "Effect": "Allow",
             "Action": "secretsmanager:GetSecretValue",
-            "Resource": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:my-docker-secret"
+            "Resource": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:my-docker-secret*"
         }
     ]
 }
@@ -168,4 +172,29 @@ ROLE_NAME=$(aws codebuild batch-get-projects --names $PROJECT_NAME --query 'proj
 # Attach policy to the role
 aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/$POLICY_NAME
 
+```
+
+## Test by assuming the role
+### Add appropriate trust relationships to the role you wish to assume
+```bash
+ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/codebuild-eks-devops-cb-for-pipeline-service-role"
+SESSION_NAME="codebuild-session"
+
+CREDENTIALS=$(aws sts assume-role --role-arn $ROLE_ARN --role-session-name $SESSION_NAME)
+
+ACCESS_KEY_ID=$(echo $CREDENTIALS | jq -r '.Credentials.AccessKeyId')
+SECRET_ACCESS_KEY=$(echo $CREDENTIALS | jq -r '.Credentials.SecretAccessKey')
+SESSION_TOKEN=$(echo $CREDENTIALS | jq -r '.Credentials.SessionToken')
+
+PROFILE_NAME="test-codebuild-role"
+
+aws configure set aws_access_key_id $ACCESS_KEY_ID --profile $PROFILE_NAME
+aws configure set aws_secret_access_key $SECRET_ACCESS_KEY --profile $PROFILE_NAME
+aws configure set aws_session_token $SESSION_TOKEN --profile $PROFILE_NAME
+
+
+# Test with access denied
+aws s3 ls --profile test-codebuild-role
+# Test working
+aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text  --profile test-codebuild-role
 ```
