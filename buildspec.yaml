@@ -12,6 +12,11 @@ phases:
       # Install argocd cli
       - curl -sLo /usr/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.7.2/argocd-linux-amd64 && chmod +x /usr/bin/argocd
       - argocd version --client
+      - echo Logging in to Docker...
+      - DOCKER_CREDS=$(aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text)
+      - DOCKER_USERNAME=$(echo $DOCKER_CREDS | jq -r .username)
+      - DOCKER_PASSWORD=$(echo $DOCKER_CREDS | jq -r .password)
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version

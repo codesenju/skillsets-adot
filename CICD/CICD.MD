@@ -111,3 +111,61 @@ aws codepipeline create-pipeline --cli-input-yaml file://pipeline.yaml
 ```bash
 aws codebuild batch-get-projects --names eks-devops-cb-for-pipeline --query 'projects[0]' --output yaml > project.yaml
 ```
+
+## Docker Secret
+```bash
+SECRET_NAME="my-docker-secret"
+DOCKER_USERNAME="my-username"
+DOCKER_PASSWORD="my-password"
+
+aws secretsmanager create-secret --name $SECRET_NAME --secret-string "{\"username\":\"$DOCKER_USERNAME\",\"password\":\"$DOCKER_PASSWORD\"}"
+```
+
+### How to use my-docker-secret
+```yaml
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Docker...
+      - DOCKER_CREDS=$(aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text)
+      - DOCKER_USERNAME=$(echo $DOCKER_CREDS | jq -r .username)
+      - DOCKER_PASSWORD=$(echo $DOCKER_CREDS | jq -r .password)
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+  build:
+    commands:
+      - echo Build started on `date`
+      # Add your build commands here
+```
+
+### Add IAM permissions to Codebuild
+```bash
+cat <<EOF> secret-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CodeBuildSecretsManagerAccess",
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:my-docker-secret"
+        }
+    ]
+}
+EOF
+
+
+# Create policy with GetSecretValue permissions
+POLICY_NAME="001_CodeBuildSecretsManagerAccess"
+aws iam create-policy --policy-name $POLICY_NAME --policy-document file://secret-policy.json
+#  List the names of all CodeBuild projects in your AWS account.
+aws codebuild list-projects --output text
+# Get the service role name of a particular CodeBuild project
+PROJECT_NAME="eks-devops-cb-for-pipeline"
+# Get role name
+ROLE_NAME=$(aws codebuild batch-get-projects --names $PROJECT_NAME --query 'projects[0].serviceRole' --output text | awk -F/ '{print $NF}')
+# Attach policy to the role
+aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/$POLICY_NAME
+
+```
