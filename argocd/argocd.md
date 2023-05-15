@@ -44,7 +44,7 @@ argocd app create uat-skillsets-ui \
     --path kustomize.ui/uat \
     --revision argocd \
     --project uat \
-    --kustomize-image 'SKILLSETS_UI_IMAGE_NAME=codesenju/skillsets-ui:v1'
+    --kustomize-image 'SKILLSETS_UI_IMAGE_NAME=codesenju/skillsets-ui:latest'
 
 argocd app delete uat-skillsets-ui -y
 ```
