@@ -57,7 +57,7 @@ phases:
       - echo "Authenticate argocd server"
       - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
       - echo "Argocd server application status before push"
-      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets --refresh
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets-api --refresh
       - echo "Completed applying changes to Kubernetes Objects"
       # Deploy
       # Update the argocd branch & deploy new image
