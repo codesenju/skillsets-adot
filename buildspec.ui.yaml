@@ -23,6 +23,7 @@ phases:
       - ARGOCD_PASSWORD=$(echo $ARGOCD_CREDS | jq -r .password)
       - echo "Authenticate argocd server"
       - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
+      - argocd --auth-token $ARGOCD_TOKEN version
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version

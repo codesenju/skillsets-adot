@@ -17,6 +17,13 @@ phases:
       - DOCKER_USERNAME=$(echo $DOCKER_CREDS | jq -r .username)
       - DOCKER_PASSWORD=$(echo $DOCKER_CREDS | jq -r .password)
       - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      # Authenticate ARGOCD SERVER
+      - ARGOCD_CREDS=$(aws secretsmanager get-secret-value --secret-id my-argocd-secret --query SecretString --output text)
+      - ARGOCD_USERNAME=$(echo $ARGOCD_CREDS | jq -r .username)
+      - ARGOCD_PASSWORD=$(echo $ARGOCD_CREDS | jq -r .password)
+      - echo "Authenticate argocd server"
+      - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
+      - argocd --auth-token $ARGOCD_TOKEN version
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version
@@ -53,9 +60,6 @@ phases:
       # Setup kubectl with our EKS Cluster              
       - echo "Update Kube Config"      
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-      # Authenticate ARGOCD SERVER
-      - echo "Authenticate argocd server"
-      - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
       - echo "Argocd server application status before push"
       - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets-api --refresh
       - echo "Completed applying changes to Kubernetes Objects"
@@ -90,7 +94,7 @@ phases:
       - cd $CODEBUILD_SRC_DIR
       # Create Artifacts which we can use if we want to continue our pipeline for other stages 
       - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
-      - kubectl apply -k kustomize/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
+      - kubectl apply -k ${TEMP_FOLDER}/skillsets/kustomize.api/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
 artifacts:
   files: 
     - build.json   
