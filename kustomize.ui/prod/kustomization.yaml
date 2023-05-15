@@ -8,8 +8,8 @@ images:
    newName: codesenju/skillsets-ui
    newTag: v1
 
-namespace: uat
-namePrefix: uat-
+namespace: prod
+namePrefix: prod-
 
 patches:
 - target:
@@ -21,7 +21,7 @@ patches:
   patch: |-
     - op: replace
       path: /spec/template/spec/containers/0/env/0/value
-      value: uat-skillsets
+      value: prod-skillsets
 #- path: ingress-patch.yaml
 #  target:
 #    group: networking.k8s.io
@@ -31,7 +31,7 @@ patches:
 - patch: |-
      - op: replace # action 
        path: /spec/rules/0/host # resource we want to change
-       value: uat-skillsets-ui.lmasu.co.za # value we want to use for patching 
+       value: prod-skillsets-ui.lmasu.co.za # value we want to use for patching 
   target:
      group: networking.k8s.io
      version: v1
