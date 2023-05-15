@@ -36,7 +36,16 @@ argocd app create dev-skillsets \
     --kustomize-image 'SKILLSETS_API_IMAGE_NAME=codesenju/skillsets-api:cors'
 
 ```
-
+### skillsets-ui
+```bash
+argocd app create uat-skillsets-ui \
+    --repo 'https://git-codecommit.us-east-1.amazonaws.com/v1/repos/skillsets' \
+    --dest-server 'https://0807E0011E71891914718E9F1BC052A3.gr7.us-east-1.eks.amazonaws.com' \
+    --path kustomize.ui/uat \
+    --revision argocd \
+    --project uat \
+    --kustomize-image 'SKILLSETS_UI_IMAGE_NAME=codesenju/skillsets-ui:v1'
+```
 ## Clean up
 ```bash
 # Option 1
