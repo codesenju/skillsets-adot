@@ -26,12 +26,6 @@ environment:
   - name: ENV
     type: PLAINTEXT
     value: uat
-  - name: ARGOCD_USERNAME
-    type: PLAINTEXT
-    value: admin
-  - name: ARGOCD_PASSWORD
-    type: PLAINTEXT
-    value: Argocd@dmin
   - name: ARGOCD_SERVER
     type: PLAINTEXT
     value: argocd.lmasu.co.za
