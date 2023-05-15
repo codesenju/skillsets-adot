@@ -69,11 +69,11 @@ phases:
       - git push
       - sleep 10
       - echo "Argocd server application status after push"
-      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets --refresh
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets-api --refresh
       - echo "Sync argocd server application"
-      - argocd --auth-token $ARGOCD_TOKEN app sync ${ENV}-skillsets
+      - argocd --auth-token $ARGOCD_TOKEN app sync ${ENV}-skillsets-api
       - echo "Wait for argocd server application sync to complete"
-      - argocd --auth-token $ARGOCD_TOKEN app wait ${ENV}-skillsets
+      - argocd --auth-token $ARGOCD_TOKEN app wait ${ENV}-skillsets-api
       # Additional Commands to view your credentials      
       #- echo "Credentials Value is..  ${CREDENTIALS}"      
       #- echo "AWS_ACCESS_KEY_ID...  ${AWS_ACCESS_KEY_ID}"            
