@@ -45,6 +45,8 @@ argocd app create uat-skillsets-ui \
     --revision argocd \
     --project uat \
     --kustomize-image 'SKILLSETS_UI_IMAGE_NAME=codesenju/skillsets-ui:v1'
+
+argocd app delete uat-skillsets-ui -y
 ```
 ## Clean up
 ```bash
@@ -69,5 +71,5 @@ spec:
 EOF
 
 # Option 2
-argocd app delete dev-skillsets -y
+argocd app delete uat-skillsets -y
 ```
