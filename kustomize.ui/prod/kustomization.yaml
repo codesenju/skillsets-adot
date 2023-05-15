@@ -17,7 +17,6 @@ patches:
     version: v1
     kind: Deployment
     name: skillsets-ui
-    namespace: skillsets
   patch: |-
     - op: replace
       path: /spec/template/spec/containers/0/env/0/value
