@@ -198,3 +198,6 @@ aws s3 ls --profile test-codebuild-role
 # Test working
 aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text  --profile test-codebuild-role
 ```
+
+# Reference:
+- https://www.stacksimplify.com/aws-eks/aws-devops-eks/learn-to-master-devops-on-aws-eks-using-aws-codecommit-codebuild-codepipeline/
