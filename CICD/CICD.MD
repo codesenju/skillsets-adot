@@ -153,7 +153,7 @@ cat <<EOF> secret-policy.json
             "Sid": "CodeBuildSecretsManagerAccess",
             "Effect": "Allow",
             "Action": "secretsmanager:GetSecretValue",
-            "Resource": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:my-docker-secret*"
+            "Resource": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:${SECRET_NAME}*"
         }
     ]
 }
@@ -177,6 +177,23 @@ aws iam attach-role-policy --role-name $ROLE_NAME --policy-arn arn:aws:iam::$AWS
 ## Test by assuming the role
 ### Add appropriate trust relationships to the role you wish to assume
 ```bash
+export ROLE_NAME=my-role
+
+cat <<EOF> trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Principal": {"AWS": "arn:aws:iam::${AWS_ACCOUNT_ID}:user/test-user"},
+    "Action": "sts:AssumeRole"
+  }
+}
+EOF
+
+aws iam update-assume-role-policy --role-name ${ROLE_NAME} --policy-document file://trustpolicy.json
+```
+### Assume the role
+```bash
 ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/codebuild-eks-devops-cb-for-pipeline-service-role"
 SESSION_NAME="codebuild-session"
 
@@ -196,7 +213,7 @@ aws configure set aws_session_token $SESSION_TOKEN --profile $PROFILE_NAME
 # Test with access denied
 aws s3 ls --profile test-codebuild-role
 # Test working
-aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text  --profile test-codebuild-role
+aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query SecretString --output text  --profile test-codebuild-role
 ```
 
 # Reference:

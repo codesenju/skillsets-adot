@@ -1,21 +1,33 @@
 version: 0.2
+env:
+  git-credential-helper: yes
 phases:
   install:
     commands:
       - echo "Install Phase - Nothing to do using latest Amazon Linux Docker Image for CodeBuild which has all AWS Tools - https://github.com/aws/aws-codebuild-docker-images/blob/master/al2/x86_64/standard/3.0/Dockerfile"
-      - curl --version
-      - bash --version
-      # - curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-      # - kustomize version
+      # Install kustomize
+      - curl -sLo /tmp/kustomize.tar.gz  https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz
+      - tar xzvf /tmp/kustomize.tar.gz -C /usr/bin/ && chmod +x /usr/bin/kustomize && rm -rf /tmp/kustomize.tar.gz
+      - kustomize version
+      # Install argocd cli
+      - curl -sLo /usr/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.7.2/argocd-linux-amd64 && chmod +x /usr/bin/argocd
+      - argocd version --client
+      - echo Logging in to Docker...
+      - DOCKER_CREDS=$(aws secretsmanager get-secret-value --secret-id my-docker-secret --query SecretString --output text)
+      - DOCKER_USERNAME=$(echo $DOCKER_CREDS | jq -r .username)
+      - DOCKER_PASSWORD=$(echo $DOCKER_CREDS | jq -r .password)
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      # Authenticate ARGOCD SERVER
+      - ARGOCD_CREDS=$(aws secretsmanager get-secret-value --secret-id my-argocd-secret --query SecretString --output text)
+      - ARGOCD_USERNAME=$(echo $ARGOCD_CREDS | jq -r .username)
+      - ARGOCD_PASSWORD=$(echo $ARGOCD_CREDS | jq -r .password)
+      - echo "Authenticate argocd server"
+      - ARGOCD_TOKEN=$(curl https://${ARGOCD_SERVER}/api/v1/session -d $'{"username":"'"${ARGOCD_USERNAME}"'","password":"'"${ARGOCD_PASSWORD}"'"}' | jq -r '.token')
   pre_build:
       commands:
         # Docker Image Tag with Date Time & Code Buiild Resolved Source Version
         # - TAG="$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
         - export TAG=$CODEBUILD_BUILD_NUMBER
-        # Update Image tag in our Kubernetes Deployment Manifest        
-        # - echo "Update Image tag in kube-manifest..."
-        # - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' kustomize/base/deployment.yaml
-        # - cat kustomize/base/deployment.yaml
         # Verify AWS CLI Version        
         - echo "Verify AWS CLI Version..."
         - aws --version
@@ -47,24 +59,41 @@ phases:
       # Setup kubectl with our EKS Cluster              
       - echo "Update Kube Config"      
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-      # Apply changes to our Application using kustomize and kubectl
-      - echo "Apply changes to kube manifests"             
-      # Pre-flight check
-      - kubectl apply -k kustomize.ui/$ENV --dry-run=client -oyaml | envsubst | grep 'image:'
+      - echo "Argocd server application status before push"
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets-ui --refresh
+      - echo "Completed applying changes to Kubernetes Objects"
       # Deploy
-      - echo "Completed applying changes to Kubernetes Objects"   
-      - kubectl apply -k kustomize.ui/$ENV --dry-run=client -oyaml | envsubst | kubectl apply -f -
-      # Create Artifacts which we can use if we want to continue our pipeline for other stages
-      - printf '[{"name":"skillsets-ui","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
+      # Update the argocd branch & deploy new image
+      - echo "Updating argocd branch and deploying the new image"
+      - TEMP_FOLDER="$(mktemp -d)"
+      - echo "Clone the argoccd branch..."
+      - git clone -b main "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/argocd-k8s-manifests" ${TEMP_FOLDER}
+      - cd ${TEMP_FOLDER}
+      - cd skillsets/kustomize.ui/$ENV &&  kustomize edit set image SKILLSETS_UI_IMAGE_NAME=$REPOSITORY_URI:$TAG
+      - git config --global user.email "lmasu+devops@amazon.com"
+      - git config --global user.name "lmasu"
+      - git add kustomization.yaml
+      - git commit -m "Updated the image to $REPOSITORY_URI:$TAG"
+      - git push
+      - sleep 10
+      - echo "Argocd server application status after push"
+      - argocd --auth-token $ARGOCD_TOKEN app get ${ENV}-skillsets-ui --refresh
+      - echo "Sync argocd server application"
+      - argocd --auth-token $ARGOCD_TOKEN app sync ${ENV}-skillsets-ui
+      - echo "Wait for argocd server application sync to complete"
+      - argocd --auth-token $ARGOCD_TOKEN app wait ${ENV}-skillsets-ui
       # Additional Commands to view your credentials      
       #- echo "Credentials Value is..  ${CREDENTIALS}"      
       #- echo "AWS_ACCESS_KEY_ID...  ${AWS_ACCESS_KEY_ID}"            
       #- echo "AWS_SECRET_ACCESS_KEY...  ${AWS_SECRET_ACCESS_KEY}"            
       #- echo "AWS_SESSION_TOKEN...  ${AWS_SESSION_TOKEN}"            
       #- echo "AWS_EXPIRATION...  $AWS_EXPIRATION"             
-      #- echo "EKS_CLUSTER_NAME...  $EKS_CLUSTER_NAME"   
-      # PREPARE ARTIFACT      
-      - kubectl apply -k kustomize.ui/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
+      #- echo "EKS_CLUSTER_NAME...  $EKS_CLUSTER_NAME"
+      - echo "Create artifact"
+      - cd $CODEBUILD_SRC_DIR
+      # Create Artifacts which we can use if we want to continue our pipeline for other stages 
+      - printf '[{"name":"skillsets","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
+      - kubectl apply -k ${TEMP_FOLDER}/skillsets/kustomize.ui/$ENV --dry-run=client -oyaml | envsubst > manifests.yaml  
 artifacts:
   files: 
     - build.json   
