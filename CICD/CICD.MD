@@ -2,7 +2,6 @@
 - Ingress Controller
 - External DNS
 
-
 ### Create ECR Repository for your Application Docker Images
 ```bash
 ECR_REPO_NAME=***
@@ -17,20 +16,23 @@ ECR_REPO_URL=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME -
 
 ### Create CodeCommit Repository and push local code to repo
 ```bash
-CC_REPO_NAME=***
-aws codecommit create-repository --repository-name $CC_REPO_NAME
+REPO_NAME="argocd-k8s-manifests"
+aws codecommit create-repository --repository-name $REPO_NAME
+REPO_URL=$(aws codecommit get-repository --repository-name $REPO_NAME --query 'repositoryMetadata.cloneUrlHttp' --output text)
+echo $REPO_URL
+
 
 # --
 cd <your-directory>
 git init
 git add .
 git commit -m "Initial commit"
-git remote add codecommit <repository-url>
+git remote add codecommit $REPO_URL
 git push codecommit master
 # ---
 cd <your-directory>
-git remote add codecommit <repository-url>
-git push codecommit master
+git remote add codecommit $REPO_URL
+git push codecommit main
 # --
 ```
 ### Create STS Assume IAM Role for CodeBuild to interact with AWS EKS
